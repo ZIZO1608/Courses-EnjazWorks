@@ -90,7 +90,7 @@ export const dict = {
     },
     login: {
       title: "تسجيل الدخول",
-      idLabel: "رقم الواتساب",
+      idLabel: "رقم الواتساب أو اسم المستخدم",
       idHint: "الطلاب: رقم الواتساب. فريق الإدارة: اسم المستخدم.",
       submit: "دخول",
       noAccount: "ليس لديك حساب؟ اختر دورة وسجّل منها",
@@ -336,7 +336,7 @@ export const dict = {
     },
     login: {
       title: "Log in",
-      idLabel: "WhatsApp number",
+      idLabel: "WhatsApp number or username",
       idHint: "Students: your WhatsApp number. Admin team: your username.",
       submit: "Log in",
       noAccount: "No account? Pick a course and register from there",

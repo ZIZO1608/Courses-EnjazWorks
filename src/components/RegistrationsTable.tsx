@@ -22,7 +22,7 @@ export function RegistrationsTable({ rows, lang, t }: { rows: Row[]; lang: Lang;
 
   return (
     <div className="card overflow-x-auto">
-      <table className="table min-w-[900px]">
+      <table className="table min-w-[1100px]">
         <thead>
           <tr>
             <th>{t.admin.table.student}</th>
@@ -31,6 +31,7 @@ export function RegistrationsTable({ rows, lang, t }: { rows: Row[]; lang: Lang;
             <th>{t.admin.table.status}</th>
             <th>{t.admin.table.paid}</th>
             <th>{t.admin.table.date}</th>
+            <th>{t.admin.answersCol}</th>
             <th>{t.admin.table.notes}</th>
           </tr>
         </thead>
@@ -85,6 +86,18 @@ export function RegistrationsTable({ rows, lang, t }: { rows: Row[]; lang: Lang;
                 </form>
               </td>
               <td className="whitespace-nowrap text-muted">{formatShortDateTime(reg.createdAt, lang)}</td>
+              <td className="min-w-64 max-w-80 text-sm">
+                {reg.answers.length > 0 && (
+                  <dl className="space-y-1.5">
+                    {reg.answers.map((a) => (
+                      <div key={a.qid}>
+                        <dt className="text-xs text-muted">{lang === "en" ? a.questionEn : a.questionAr}</dt>
+                        <dd className="font-bold whitespace-pre-line">{lang === "en" ? a.answerEn : a.answerAr}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+              </td>
               <td className="max-w-56 text-sm whitespace-pre-line">{reg.notes}</td>
             </tr>
           ))}

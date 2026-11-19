@@ -11,6 +11,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { getCourse } from "@/lib/courses";
 import { formatDateTime, formatPrice, pick } from "@/lib/format";
 import { getT } from "@/lib/lang";
+import { fieldName, readQuestions } from "@/lib/questions";
 
 export const dynamic = "force-dynamic";
 
@@ -99,6 +100,8 @@ export default async function CoursePage({ params }: Props) {
               labels={{
                 title: t.form.title,
                 accountSection: t.form.accountSection,
+                questionsSection: t.form.questionsSection,
+                optional: t.form.optional,
                 fullName: t.form.fullName,
                 phone: t.form.phone,
                 phoneHint: t.form.phoneHint,
@@ -118,6 +121,16 @@ export default async function CoursePage({ params }: Props) {
               }}
               years={Object.entries(t.form.years).map(([value, label]) => ({ value, label }))}
               heard={Object.entries(t.form.heard).map(([value, label]) => ({ value, label }))}
+              questions={readQuestions(course.questions).map((q) => ({
+                name: fieldName(q),
+                type: q.type,
+                label: lang === "en" && q.labelEn ? q.labelEn : q.labelAr,
+                required: q.required,
+                options: q.options.map((o, i) => ({
+                  value: String(i),
+                  label: lang === "en" && o.en ? o.en : o.ar,
+                })),
+              }))}
             />
           )}
         </aside>

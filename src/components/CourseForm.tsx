@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { saveCourse, type CourseFormState } from "@/app/actions/admin";
+import type { Question } from "@/lib/questions";
+import { QuestionsEditor, type QuestionsEditorLabels } from "./QuestionsEditor";
 import { SubmitButton } from "./SubmitButton";
 
 type Fields = Record<
@@ -18,6 +20,7 @@ export type CourseInitial = {
   startsAt: string; scheduleAr: string; scheduleEn: string; durationAr: string; durationEn: string;
   locationAr: string; locationEn: string; price: string; currency: string; seats: string;
   status: string; imageId: number | null;
+  questions: Question[];
 };
 
 export function CourseForm({
@@ -25,11 +28,13 @@ export function CourseForm({
   fields,
   statusLabels,
   labels,
+  questionLabels,
 }: {
   initial: CourseInitial;
   fields: Fields;
   statusLabels: Record<"draft" | "open" | "closed", string>;
-  labels: { save: string; cancel: string; saving: string };
+  labels: { save: string; cancel: string; saving: string; fixErrors: string };
+  questionLabels: QuestionsEditorLabels;
 }) {
   const [state, action] = useActionState<CourseFormState, FormData>(saveCourse, {});
   const e = state.errors ?? {};
@@ -117,6 +122,12 @@ export function CourseForm({
           </label>
         )}
       </div>
+
+      <div className="border-t border-line pt-6">
+        <QuestionsEditor initial={initial.questions} labels={questionLabels} error={e.questions} />
+      </div>
+
+      {Object.keys(e).length > 0 && <p className="error-text font-bold">{labels.fixErrors}</p>}
 
       <div className="flex gap-3">
         <SubmitButton pendingLabel={labels.saving}>{labels.save}</SubmitButton>

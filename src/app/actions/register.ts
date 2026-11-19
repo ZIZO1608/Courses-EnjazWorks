@@ -10,6 +10,7 @@ import { dict } from "@/lib/i18n";
 import { getT } from "@/lib/lang";
 import { notifyAdmins } from "@/lib/notify";
 import { normalizePhone } from "@/lib/phone";
+import { fieldName, readQuestions, type Answer } from "@/lib/questions";
 
 const YEARS = ["1", "2", "3", "4", "5", "6", "grad", "postgrad", "notStudent"] as const;
 const HEARD = ["instagram", "facebook", "whatsapp", "friend", "university", "website", "other"] as const;
@@ -32,7 +33,31 @@ export async function registerForCourse(_prev: RegisterState, formData: FormData
   const [course] = await db.select().from(courses).where(eq(courses.id, courseId)).limit(1);
   if (!course || course.status !== "open") return { formError: t.errors.courseClosed, values };
 
+  // Course-specific questions are checked first, so all errors show together.
+  const errors: Record<string, string> = {};
+  const answers: Answer[] = [];
+  for (const q of readQuestions(course.questions)) {
+    const value = String(formData.get(fieldName(q)) ?? "").trim();
+    if (!value) {
+      if (q.required) errors[fieldName(q)] = t.errors.required;
+      continue;
+    }
+    let answerAr = value.slice(0, 1000);
+    let answerEn = answerAr;
+    if (q.type === "choice") {
+      const option = q.options[Number(value)];
+      if (!/^\d+$/.test(value) || !option) {
+        errors[fieldName(q)] = t.errors.required;
+        continue;
+      }
+      answerAr = option.ar;
+      answerEn = option.en || option.ar;
+    }
+    answers.push({ qid: q.id, questionAr: q.labelAr, questionEn: q.labelEn || q.labelAr, answerAr, answerEn });
+  }
+
   let user = await getCurrentUser();
+  if (user && Object.keys(errors).length) return { errors, values };
 
   if (!user) {
     const schema = z.object({
@@ -45,7 +70,6 @@ export async function registerForCourse(_prev: RegisterState, formData: FormData
       heardFrom: z.enum(HEARD, { errorMap: () => ({ message: t.errors.required }) }),
     });
     const parsed = schema.safeParse(Object.fromEntries(formData.entries()));
-    const errors: Record<string, string> = {};
     if (!parsed.success) {
       for (const issue of parsed.error.issues) errors[String(issue.path[0])] ??= issue.message;
     }
@@ -88,7 +112,7 @@ export async function registerForCourse(_prev: RegisterState, formData: FormData
     .where(and(eq(registrations.courseId, course.id), inArray(registrations.status, ["pending", "accepted"])));
   const status = taken >= course.seats ? "waitlist" : "pending";
 
-  await db.insert(registrations).values({ userId: user.id, courseId: course.id, status, notes });
+  await db.insert(registrations).values({ userId: user.id, courseId: course.id, status, notes, answers });
 
   await notifyAdmins({
     titleAr: dict.ar.notify.newRegistrationTitle,

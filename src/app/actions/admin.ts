@@ -11,6 +11,7 @@ import { parseLocalDateTime } from "@/lib/format";
 import { dict } from "@/lib/i18n";
 import { getT } from "@/lib/lang";
 import { notifyUsers } from "@/lib/notify";
+import { questionsSchema } from "@/lib/questions";
 
 async function assertAdmin() {
   const user = await getCurrentUser();
@@ -61,7 +62,16 @@ export async function saveCourse(_prev: CourseFormState, formData: FormData): Pr
   const hasImage = image instanceof File && image.size > 0;
   if (hasImage && (!image.type.startsWith("image/") || image.size > MAX_IMAGE)) errors.image = t.admin.fields.image;
 
-  if (Object.keys(errors).length || !parsed.success || !startsAt) return { errors };
+  let questionsJson: unknown = [];
+  try {
+    questionsJson = JSON.parse(String(raw.questions ?? "[]"));
+  } catch {
+    questionsJson = null;
+  }
+  const questions = questionsSchema.safeParse(questionsJson);
+  if (!questions.success) errors.questions = t.admin.questions.invalid;
+
+  if (Object.keys(errors).length || !parsed.success || !startsAt || !questions.success) return { errors };
 
   let imageId: number | null | undefined = undefined; // undefined = keep current
   if (hasImage) {
@@ -74,7 +84,7 @@ export async function saveCourse(_prev: CourseFormState, formData: FormData): Pr
     imageId = null;
   }
 
-  const values = { ...parsed.data, startsAt, price, updatedAt: new Date(), ...(imageId !== undefined ? { imageId } : {}) };
+  const values = { ...parsed.data, questions: questions.data, startsAt, price, updatedAt: new Date(), ...(imageId !== undefined ? { imageId } : {}) };
   const id = Number(formData.get("id"));
 
   if (id) {

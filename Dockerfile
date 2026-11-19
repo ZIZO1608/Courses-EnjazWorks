@@ -29,6 +29,7 @@ COPY --from=builder --chown=app:app /app/.next/static ./.next/static
 COPY --from=builder --chown=app:app /app/public ./public
 COPY --from=builder --chown=app:app /app/drizzle ./drizzle
 COPY --from=builder --chown=app:app /app/scripts/create-admin.mjs ./scripts/create-admin.mjs
+COPY --from=builder --chown=app:app /app/scripts/add-workshop.mjs ./scripts/add-workshop.mjs
 
 USER app
 EXPOSE 3000

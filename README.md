@@ -18,6 +18,7 @@ Arabic + English, installable on phones (PWA), burgundy enjazwork identity.
 **Admins** (`/admin`)
 - Overview: pending count, totals, latest registrations, notifications switch
 - Courses: add/edit (Arabic + English text, start time, schedule, duration, location, fee in SYP/USD, seats, cover image, draft/open/closed)
+- Registration questions per course: short answer, long answer, or pick-from-a-list, required or optional. Answers show in the registrations table and as extra CSV columns
 - Registrations: filter by course/status/name, change status (pending / accepted / waitlist / rejected / cancelled), mark paid, WhatsApp link, CSV export (opens in Excel)
 - Students: search, generate a temporary password and send it on WhatsApp
 - Send message: push + inbox message to the students of one course
@@ -92,7 +93,10 @@ node scripts/create-admin.mjs "Ahmad" 09XXXXXXXX "strong-password"
 
 Running it again for the same number resets that admin's password. It also turns an existing student account into an admin.
 
-### 6. On each admin's phone
+### 6. The "من الفكرة إلى الإنجاز" workshop (optional)
+In the Terminal: `node scripts/add-workshop.mjs`. It adds the workshop as a **draft** with its 6 registration questions. Then in `/admin/courses` set the date, place, seats and fee, and switch it to **Open**.
+
+### 7. On each admin's phone
 Open `courses.enjazwork.com` → log in → **Install app** → open it from the home screen → **Turn on notifications** on the admin overview → tap **Send a test notification**.
 
 ## Local development

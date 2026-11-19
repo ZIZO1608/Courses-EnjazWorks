@@ -7,9 +7,19 @@ import { SubmitButton } from "./SubmitButton";
 
 type Option = { value: string; label: string };
 
+export type FormQuestion = {
+  name: string;
+  type: "text" | "textarea" | "choice";
+  label: string;
+  required: boolean;
+  options: Option[];
+};
+
 export type RegisterLabels = {
   title: string;
   accountSection: string;
+  questionsSection: string;
+  optional: string;
   fullName: string;
   phone: string;
   phoneHint: string;
@@ -34,8 +44,10 @@ export function RegisterForm({
   labels,
   years,
   heard,
+  questions,
 }: {
   courseId: number;
+  questions: FormQuestion[];
   loggedIn: boolean;
   labels: RegisterLabels;
   years: Option[];
@@ -159,6 +171,8 @@ export function RegisterForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={labels.studyYear} name="studyYear" error={err.studyYear}>
               <select
+                // Remount with the submitted value; React ignores defaultValue changes on <select>.
+                key={`studyYear-${v.studyYear ?? ""}`}
                 id="studyYear"
                 name="studyYear"
                 className="input"
@@ -178,6 +192,8 @@ export function RegisterForm({
             </Field>
             <Field label={labels.heardFrom} name="heardFrom" error={err.heardFrom}>
               <select
+                // Remount with the submitted value; React ignores defaultValue changes on <select>.
+                key={`heardFrom-${v.heardFrom ?? ""}`}
                 id="heardFrom"
                 name="heardFrom"
                 className="input"
@@ -196,6 +212,66 @@ export function RegisterForm({
               </select>
             </Field>
           </div>
+        </fieldset>
+      )}
+
+      {questions.length > 0 && (
+        <fieldset className="space-y-4 border-t border-line pt-5">
+          <legend className="text-lg font-extrabold text-brand mb-3">{labels.questionsSection}</legend>
+          {questions.map((q) => {
+            const label = q.required ? q.label : `${q.label} (${labels.optional})`;
+            if (q.type === "choice") {
+              return (
+                <div key={q.name} role="radiogroup" aria-labelledby={`${q.name}-label`} aria-invalid={!!err[q.name]}>
+                  <p id={`${q.name}-label`} className="field-label">
+                    {label}
+                  </p>
+                  <div className="space-y-2">
+                    {q.options.map((o) => (
+                      <label
+                        key={o.value}
+                        className="flex items-center gap-3 rounded-xl border border-line px-4 py-3 cursor-pointer has-[:checked]:border-brand has-[:checked]:bg-tint"
+                      >
+                        <input
+                          type="radio"
+                          name={q.name}
+                          value={o.value}
+                          defaultChecked={v[q.name] === o.value}
+                          className="accent-brand size-4 shrink-0"
+                        />
+                        <span className="font-medium">{o.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {err[q.name] && <p className="error-text">{err[q.name]}</p>}
+                </div>
+              );
+            }
+            return (
+              <Field key={q.name} label={label} name={q.name} error={err[q.name]}>
+                {q.type === "textarea" ? (
+                  <textarea
+                    id={q.name}
+                    name={q.name}
+                    className="input"
+                    rows={3}
+                    maxLength={1000}
+                    defaultValue={v[q.name]}
+                    aria-invalid={!!err[q.name]}
+                  />
+                ) : (
+                  <input
+                    id={q.name}
+                    name={q.name}
+                    className="input"
+                    maxLength={1000}
+                    defaultValue={v[q.name]}
+                    aria-invalid={!!err[q.name]}
+                  />
+                )}
+              </Field>
+            );
+          })}
         </fieldset>
       )}
 

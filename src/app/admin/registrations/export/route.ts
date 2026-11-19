@@ -27,7 +27,12 @@ export async function GET(req: Request) {
   const t = dict.ar;
   const years = t.form.years as Record<string, string>;
   const heard = t.form.heard as Record<string, string>;
-  const header = ["الاسم", "واتساب", "الجامعة", "الاختصاص", "السنة", "كيف سمع عنا", "الدورة", "الحالة", "الدفع", "التاريخ", "ملاحظات"];
+  // One extra column per course question, in the order they first appear.
+  const questionCols = new Map<string, string>();
+  for (const { reg } of rows) for (const a of reg.answers) if (!questionCols.has(a.qid)) questionCols.set(a.qid, a.questionAr);
+  const qids = [...questionCols.keys()];
+
+  const header = ["الاسم", "واتساب", "الجامعة", "الاختصاص", "السنة", "كيف سمع عنا", "الدورة", "الحالة", "الدفع", "التاريخ", "ملاحظات", ...questionCols.values()];
   const lines = rows.map(({ reg, user: u, course }) =>
     [
       u.fullName,
@@ -41,6 +46,7 @@ export async function GET(req: Request) {
       reg.paid ? "مدفوع" : "غير مدفوع",
       formatShortDateTime(reg.createdAt, "ar"),
       reg.notes ?? "",
+      ...qids.map((qid) => reg.answers.find((a) => a.qid === qid)?.answerAr ?? ""),
     ]
       .map(cell)
       .join(","),

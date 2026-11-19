@@ -3,6 +3,7 @@ import {
   customType,
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   serial,
@@ -10,6 +11,7 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
+import type { Answer, Question } from "@/lib/questions";
 
 const bytea = customType<{ data: Buffer }>({ dataType: () => "bytea" });
 
@@ -76,6 +78,8 @@ export const courses = pgTable("courses", {
   seats: integer("seats").notNull(),
   imageId: integer("image_id").references(() => courseImages.id, { onDelete: "set null" }),
   status: courseStatusEnum("status").notNull().default("draft"),
+  /** Extra registration questions for this course (see src/lib/questions.ts). */
+  questions: jsonb("questions").$type<Question[]>().notNull().default([]),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -93,6 +97,8 @@ export const registrations = pgTable(
     status: registrationStatusEnum("status").notNull().default("pending"),
     paid: boolean("paid").notNull().default(false),
     notes: text("notes"),
+    /** Answers to the course's custom questions, with question text snapshotted. */
+    answers: jsonb("answers").$type<Answer[]>().notNull().default([]),
     adminNote: text("admin_note"),
     reminderSentAt: timestamp("reminder_sent_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

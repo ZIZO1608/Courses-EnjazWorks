@@ -15,6 +15,13 @@
       "when": 1795112682799,
       "tag": "0001_course_questions",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795114265467,
+      "tag": "0002_admin_usernames",
+      "breakpoints": true
     }
   ]
 }

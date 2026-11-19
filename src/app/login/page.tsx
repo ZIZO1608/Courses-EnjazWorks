@@ -17,7 +17,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <h1 className="text-2xl font-extrabold text-brand mb-6">{t.login.title}</h1>
         <LoginForm
           next={next}
-          labels={{ phone: t.form.phone, password: t.form.password, submit: t.login.submit, submitting: t.form.submitting }}
+          labels={{ phone: t.login.idLabel, phoneHint: t.login.idHint, password: t.form.password, submit: t.login.submit, submitting: t.form.submitting }}
         />
         <div className="mt-6 space-y-2 text-sm text-muted">
           <p>

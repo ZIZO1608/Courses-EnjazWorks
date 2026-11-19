@@ -9,7 +9,7 @@ export function LoginForm({
   labels,
 }: {
   next: string;
-  labels: { phone: string; password: string; submit: string; submitting: string };
+  labels: { phone: string; phoneHint: string; password: string; submit: string; submitting: string };
 }) {
   const [state, action] = useActionState<LoginState, FormData>(login, {});
   return (
@@ -27,14 +27,16 @@ export function LoginForm({
         <input
           id="phone"
           name="phone"
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
+          type="text"
+          autoComplete="username"
+          autoCapitalize="none"
+          spellCheck={false}
           dir="ltr"
           className="input latin text-start"
           defaultValue={state.phone}
           required
         />
+        <p className="hint">{labels.phoneHint}</p>
       </div>
       <div>
         <label htmlFor="password" className="field-label">

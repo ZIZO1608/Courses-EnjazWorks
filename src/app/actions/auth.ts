@@ -17,12 +17,19 @@ function safeNext(value: FormDataEntryValue | null) {
 
 export async function login(_prev: LoginState, formData: FormData): Promise<LoginState> {
   const { t } = await getT();
-  const rawPhone = String(formData.get("phone") ?? "");
+  const rawPhone = String(formData.get("phone") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  const phone = normalizePhone(rawPhone);
-  if (!phone) return { error: t.errors.phone, phone: rawPhone };
 
-  const [user] = await db.select().from(users).where(eq(users.phone, phone)).limit(1);
+  // Admins log in with a username (letters), students with their WhatsApp number.
+  const isUsername = /[a-z]/i.test(rawPhone);
+  const phone = isUsername ? null : normalizePhone(rawPhone);
+  if (!isUsername && !phone) return { error: t.errors.phone, phone: rawPhone };
+
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(isUsername ? eq(users.username, rawPhone.toLowerCase()) : eq(users.phone, phone!))
+    .limit(1);
   if (!user || !(await verifyPassword(password, user.passwordHash))) {
     return { error: t.errors.badLogin, phone: rawPhone };
   }

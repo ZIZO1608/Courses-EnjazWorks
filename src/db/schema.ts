@@ -29,7 +29,10 @@ export const registrationStatusEnum = pgEnum("registration_status", [
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   fullName: text("full_name").notNull(),
-  phone: text("phone").notNull().unique(),
+  /** WhatsApp number in +963… form. Students log in with it; admins may have none. */
+  phone: text("phone").unique(),
+  /** Lowercase login name for admins (e.g. "anas"). Students don't have one. */
+  username: text("username").unique(),
   passwordHash: text("password_hash").notNull(),
   role: roleEnum("role").notNull().default("student"),
   university: text("university"),

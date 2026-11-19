@@ -86,12 +86,12 @@ Deploy. The database tables are created automatically on first start.
 Coolify → the app → **Terminal**, run once per admin:
 
 ```bash
-node scripts/create-admin.mjs "Anas" 09XXXXXXXX "strong-password"
-node scripts/create-admin.mjs "Zaven" 09XXXXXXXX "strong-password"
-node scripts/create-admin.mjs "Ahmad" 09XXXXXXXX "strong-password"
+node scripts/create-admin.mjs anas "strong-password"
+node scripts/create-admin.mjs zaven "strong-password"
+node scripts/create-admin.mjs ahmad "strong-password"
 ```
 
-Running it again for the same number resets that admin's password. It also turns an existing student account into an admin.
+Admins log in with the username (`anas`) on the same login page students use. Leave out the password to get a generated one printed. Running it again for the same username resets that admin's password and logs them out everywhere.
 
 ### 6. The "من الفكرة إلى الإنجاز" workshop (optional)
 In the Terminal: `node scripts/add-workshop.mjs`. It adds the workshop as a **draft** with its 6 registration questions. Then in `/admin/courses` set the date, place, seats and fee, and switch it to **Open**.

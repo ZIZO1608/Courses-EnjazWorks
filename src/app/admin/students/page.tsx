@@ -1,4 +1,4 @@
-import { desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { registrations, users } from "@/db/schema";
 import { ResetPasswordButton } from "@/components/ResetPasswordButton";
@@ -18,7 +18,7 @@ export default async function StudentsPage({ searchParams }: { searchParams: Pro
       count: sql<number>`(select count(*)::int from ${registrations} r where r.user_id = ${users.id})`,
     })
     .from(users)
-    .where(term ? or(ilike(users.fullName, term), ilike(users.phone, term)) : eq(users.role, "student"))
+    .where(and(eq(users.role, "student"), term ? or(ilike(users.fullName, term), ilike(users.phone, term)) : undefined))
     .orderBy(desc(users.createdAt))
     .limit(500);
 

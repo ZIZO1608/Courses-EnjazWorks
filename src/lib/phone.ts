@@ -20,12 +20,14 @@ export function normalizePhone(input: string): string | null {
 }
 
 /** wa.me link for a stored phone number. */
-export function whatsappLink(phone: string) {
+export function whatsappLink(phone: string | null) {
+  if (!phone) return "#";
   return `https://wa.me/${phone.replace(/^\+/, "")}`;
 }
 
 /** +963933123456 → "0933 123 456" (how Syrians write numbers); other countries unchanged. */
-export function displayPhone(phone: string) {
+export function displayPhone(phone: string | null) {
+  if (!phone) return "—";
   const m = /^\+963(\d{3})(\d{3})(\d{3})$/.exec(phone);
   return m ? `0${m[1]} ${m[2]} ${m[3]}` : phone;
 }

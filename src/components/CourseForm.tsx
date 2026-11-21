@@ -33,7 +33,7 @@ export function CourseForm({
   initial: CourseInitial;
   fields: Fields;
   statusLabels: Record<"draft" | "open" | "closed", string>;
-  labels: { save: string; cancel: string; saving: string; fixErrors: string };
+  labels: { save: string; cancel: string; saving: string; fixErrors: string; startsHint: string };
   questionLabels: QuestionsEditorLabels;
 }) {
   const [state, action] = useActionState<CourseFormState, FormData>(saveCourse, {});
@@ -75,7 +75,10 @@ export function CourseForm({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        {text("startsAt", { type: "datetime-local", dir: "ltr", required: true })}
+        <div>
+          {text("startsAt", { type: "datetime-local", dir: "ltr" })}
+          <p className="hint">{labels.startsHint}</p>
+        </div>
         {text("instructor")}
         <div>
           <label htmlFor="status" className="field-label">{fields.status}</label>

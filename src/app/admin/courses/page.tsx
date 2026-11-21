@@ -7,8 +7,9 @@ import { getT } from "@/lib/lang";
 
 const statusTone = { draft: "bg-gray-100 text-gray-600", open: "bg-ok-bg text-ok", closed: "bg-bad-bg text-bad" };
 
-export default async function AdminCourses() {
+export default async function AdminCourses({ searchParams }: { searchParams: Promise<{ notified?: string }> }) {
   const { lang, t } = await getT();
+  const notified = Number((await searchParams).notified) || 0;
   const rows = await db
     .select({
       course: courses,
@@ -20,6 +21,11 @@ export default async function AdminCourses() {
 
   return (
     <div className="space-y-4">
+      {notified > 0 && (
+        <p className="rounded-xl bg-ok-bg text-ok px-4 py-3 font-bold" role="status">
+          {t.admin.notified(notified)}
+        </p>
+      )}
       <Link href="/admin/courses/new" className="btn btn-primary">+ {t.admin.newCourse}</Link>
       {rows.length === 0 ? (
         <div className="card p-6 text-center text-muted">{t.admin.noRows}</div>

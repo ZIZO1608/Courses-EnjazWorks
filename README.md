@@ -18,6 +18,7 @@ Arabic + English, installable on phones (PWA), burgundy enjazwork identity.
 **Admins** (`/admin`)
 - Overview: pending count, totals, latest registrations, notifications switch
 - Courses: add/edit (Arabic + English text, start time, schedule, duration, location, fee in SYP/USD, seats, cover image, draft/open/closed)
+- Start date can stay empty ("date coming soon"). When an admin sets or changes it, everyone registered gets a push + inbox notification, and the course page offers Add to Google Calendar / iPhone calendar
 - Registration questions per course: short answer, long answer, or pick-from-a-list, required or optional. Answers show in the registrations table and as extra CSV columns
 - Registrations: filter by course/status/name, change status (pending / accepted / waitlist / rejected / cancelled), mark paid, WhatsApp link, CSV export (opens in Excel)
 - Students: search, generate a temporary password and send it on WhatsApp
@@ -29,6 +30,7 @@ Arabic + English, installable on phones (PWA), burgundy enjazwork identity.
 | A student registers | All admins |
 | Admin changes a registration's status | That student |
 | 24 hours before a course starts | Every accepted student, once |
+| Admin sets or changes a course's date | Everyone registered (pending, accepted, waitlist) |
 | Admin sends a message | Students of the chosen course |
 
 Every notification is also saved in the user's inbox on the site, so nothing is lost if push is off.

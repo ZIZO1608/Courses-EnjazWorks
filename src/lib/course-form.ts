@@ -12,7 +12,7 @@ export function courseToInitial(c?: Course): CourseInitial {
     descriptionAr: c?.descriptionAr ?? "",
     descriptionEn: c?.descriptionEn ?? "",
     instructor: c?.instructor ?? "",
-    startsAt: c ? toLocalInputValue(c.startsAt) : "",
+    startsAt: toLocalInputValue(c?.startsAt ?? null),
     scheduleAr: c?.scheduleAr ?? "",
     scheduleEn: c?.scheduleEn ?? "",
     durationAr: c?.durationAr ?? "",
@@ -32,7 +32,7 @@ export function courseFormProps(t: Dict) {
   return {
     fields: { ...t.admin.fields },
     statusLabels: { ...t.admin.courseStatus },
-    labels: { save: t.admin.save, cancel: t.admin.cancel, saving: t.form.submitting, fixErrors: t.errors.fixBelow },
+    labels: { save: t.admin.save, cancel: t.admin.cancel, saving: t.form.submitting, fixErrors: t.errors.fixBelow, startsHint: t.admin.startsHint },
     questionLabels: { ...t.admin.questions, types: { ...t.admin.questions.types } },
   };
 }

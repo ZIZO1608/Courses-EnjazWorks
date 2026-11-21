@@ -109,9 +109,8 @@ const [existing] = await sql`select id from courses where title_ar = ${TITLE_AR}
 if (existing) {
   console.log(`Workshop already exists: course #${existing.id}. Nothing changed.`);
 } else {
-  // Placeholder date one week from now, 5 PM Damascus time. Change it in the admin panel.
-  const startsAt = new Date(Date.now() + 7 * 24 * 3600 * 1000);
-  startsAt.setUTCHours(14, 0, 0, 0);
+  // No date yet: the site shows "date coming soon". Setting it in the admin panel notifies everyone registered.
+  const startsAt = null;
 
   const [row] = await sql`
     insert into courses (
@@ -123,6 +122,6 @@ if (existing) {
     )
     returning id`;
   console.log(`Workshop added as a draft: course #${row.id}.`);
-  console.log("Next: /admin/courses → edit it → set date, place, seats, fee → status Open → Save.");
+  console.log("Next: /admin/courses → edit it → set place, seats, fee → status Open → Save. Add the date whenever it is decided.");
 }
 await sql.end();

@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { db } from "@/db";
 import { registrations } from "@/db/schema";
@@ -8,6 +9,7 @@ import { CourseCover } from "@/components/CourseCard";
 import { RegisterForm } from "@/components/RegisterForm";
 import { StatusBadge } from "@/components/StatusBadge";
 import { getCurrentUser } from "@/lib/auth";
+import { googleCalendarUrl, siteOrigin } from "@/lib/calendar";
 import { getCourse } from "@/lib/courses";
 import { formatDateTime, formatPrice, pick } from "@/lib/format";
 import { getT } from "@/lib/lang";
@@ -49,7 +51,7 @@ export default async function CoursePage({ params }: Props) {
 
   const facts: [string, string][] = (
     [
-      [t.course.startsAt, formatDateTime(course.startsAt, lang)],
+      ...(course.startsAt ? [[t.course.startsAt, formatDateTime(course.startsAt, lang)]] : []),
       [t.course.schedule, pick(course, "schedule", lang)],
       [t.course.duration, pick(course, "duration", lang)],
       [t.course.location, pick(course, "location", lang)],
@@ -58,6 +60,8 @@ export default async function CoursePage({ params }: Props) {
       [t.course.seats, t.course.seatsLeft(left)],
     ] as [string, string][]
   ).filter(([, value]) => value);
+
+  const pageUrl = `${siteOrigin(await headers())}/courses/${course.id}`;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:py-10">
@@ -77,6 +81,30 @@ export default async function CoursePage({ params }: Props) {
               </div>
             ))}
           </dl>
+          {course.startsAt ? (
+            <div id="calendar" className="mb-8 scroll-mt-24 flex flex-wrap items-center gap-2">
+              <span className="font-bold text-brand me-1">{t.course.addToCalendar}:</span>
+              <a href={googleCalendarUrl(course, lang, pageUrl)} target="_blank" rel="noreferrer" className="btn btn-outline btn-sm">
+                <CalendarIcon /> {t.course.googleCalendar}
+              </a>
+              <a href={`/courses/${course.id}/calendar.ics`} className="btn btn-outline btn-sm">
+                <CalendarIcon /> {t.course.appleCalendar}
+              </a>
+            </div>
+          ) : (
+            <div id="calendar" className="mb-8 flex items-start gap-4 rounded-2xl border-2 border-dashed border-rose/60 bg-tint px-5 py-4">
+              <span className="relative mt-1 grid size-11 shrink-0 place-items-center rounded-full bg-brand text-white">
+                <BellIcon />
+                <span className="absolute -top-0.5 -end-0.5 size-3 rounded-full bg-rose animate-ping" />
+                <span className="absolute -top-0.5 -end-0.5 size-3 rounded-full bg-rose" />
+              </span>
+              <div>
+                <p className="text-lg font-extrabold text-brand">{t.course.tbaTitle}</p>
+                <p className="font-medium text-ink">{t.course.tbaBody}</p>
+              </div>
+            </div>
+          )}
+
           {description && (
             <div className="text-lg leading-loose whitespace-pre-line text-ink">{description}</div>
           )}
@@ -136,5 +164,23 @@ export default async function CoursePage({ params }: Props) {
         </aside>
       </div>
     </div>
+  );
+}
+
+function CalendarIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+      <rect x="3" y="5" width="18" height="16" rx="3" />
+      <path d="M3 10h18M8 3v4M16 3v4" />
+    </svg>
+  );
+}
+
+function BellIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+      <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+    </svg>
   );
 }

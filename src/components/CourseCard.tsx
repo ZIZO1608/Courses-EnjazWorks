@@ -16,7 +16,9 @@ export function CourseCard({ course, taken, lang, t }: { course: Course; taken: 
         <dl className="text-sm space-y-1.5 text-ink">
           <div className="flex gap-2">
             <dt className="text-muted shrink-0">{t.course.startsAt}:</dt>
-            <dd className="font-medium">{formatDateTime(course.startsAt, lang)}</dd>
+            <dd className={course.startsAt ? "font-medium" : "font-bold text-rose"}>
+              {formatDateTime(course.startsAt, lang)}
+            </dd>
           </div>
           {pick(course, "duration", lang) && (
             <div className="flex gap-2">

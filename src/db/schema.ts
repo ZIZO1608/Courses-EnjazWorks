@@ -69,7 +69,8 @@ export const courses = pgTable("courses", {
   descriptionAr: text("description_ar").notNull().default(""),
   descriptionEn: text("description_en").notNull().default(""),
   instructor: text("instructor").notNull().default(""),
-  startsAt: timestamp("starts_at", { withTimezone: true }).notNull(),
+  /** Null = "date coming soon". Setting it later notifies everyone registered. */
+  startsAt: timestamp("starts_at", { withTimezone: true }),
   scheduleAr: text("schedule_ar").notNull().default(""),
   scheduleEn: text("schedule_en").notNull().default(""),
   durationAr: text("duration_ar").notNull().default(""),

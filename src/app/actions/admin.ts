@@ -7,7 +7,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { courseImages, courses, registrations, sessions, users, type RegistrationStatus } from "@/db/schema";
 import { generateTempPassword, getCurrentUser, hashPassword } from "@/lib/auth";
-import { parseLocalDateTime } from "@/lib/format";
+import { formatDateTime, parseLocalDateTime } from "@/lib/format";
 import { dict } from "@/lib/i18n";
 import { getT } from "@/lib/lang";
 import { notifyUsers } from "@/lib/notify";
@@ -51,8 +51,10 @@ export async function saveCourse(_prev: CourseFormState, formData: FormData): Pr
   const errors: Record<string, string> = {};
   if (!parsed.success) for (const i of parsed.error.issues) errors[String(i.path[0])] ??= i.message;
 
-  const startsAt = parseLocalDateTime(String(raw.startsAt ?? ""));
-  if (!startsAt) errors.startsAt = req;
+  // Empty = "date coming soon"; anything else must be a valid date.
+  const startsRaw = String(raw.startsAt ?? "").trim();
+  const startsAt = startsRaw ? parseLocalDateTime(startsRaw) : null;
+  if (startsRaw && !startsAt) errors.startsAt = req;
 
   const priceRaw = String(raw.price ?? "").replace(/[,\s]/g, "");
   const price = priceRaw === "" ? null : Number(priceRaw);
@@ -71,7 +73,7 @@ export async function saveCourse(_prev: CourseFormState, formData: FormData): Pr
   const questions = questionsSchema.safeParse(questionsJson);
   if (!questions.success) errors.questions = t.admin.questions.invalid;
 
-  if (Object.keys(errors).length || !parsed.success || !startsAt || !questions.success) return { errors };
+  if (Object.keys(errors).length || !parsed.success || !questions.success) return { errors };
 
   let imageId: number | null | undefined = undefined; // undefined = keep current
   if (hasImage) {
@@ -87,14 +89,41 @@ export async function saveCourse(_prev: CourseFormState, formData: FormData): Pr
   const values = { ...parsed.data, questions: questions.data, startsAt, price, updatedAt: new Date(), ...(imageId !== undefined ? { imageId } : {}) };
   const id = Number(formData.get("id"));
 
+  let notified = 0;
   if (id) {
+    const [before] = await db.select({ startsAt: courses.startsAt }).from(courses).where(eq(courses.id, id)).limit(1);
     await db.update(courses).set(values).where(eq(courses.id, id));
+    const dateChanged = startsAt && before && before.startsAt?.getTime() !== startsAt.getTime();
+    if (dateChanged) notified = await announceDate(id, before.startsAt !== null);
   } else {
     await db.insert(courses).values(values);
   }
   revalidatePath("/");
   revalidatePath("/admin/courses");
-  redirect("/admin/courses");
+  redirect(notified ? `/admin/courses?notified=${notified}` : "/admin/courses");
+}
+
+/** Tells everyone still registered (pending / accepted / waitlist) the course's new date. */
+async function announceDate(courseId: number, wasSet: boolean) {
+  const [course] = await db.select().from(courses).where(eq(courses.id, courseId)).limit(1);
+  if (!course?.startsAt) return 0;
+  const active = and(eq(registrations.courseId, courseId), inArray(registrations.status, ["pending", "accepted", "waitlist"]));
+  const regs = await db.select({ userId: registrations.userId }).from(registrations).where(active);
+  // New date → the 24-hour reminder should go out again.
+  await db.update(registrations).set({ reminderSentAt: null }).where(eq(registrations.courseId, courseId));
+  if (regs.length === 0) return 0;
+  const title = wasSet ? "dateChangedTitle" : "dateSetTitle";
+  await notifyUsers(
+    regs.map((r) => r.userId),
+    {
+      titleAr: dict.ar.notify[title](course.titleAr),
+      titleEn: dict.en.notify[title](course.titleEn || course.titleAr),
+      bodyAr: dict.ar.notify.dateBody(formatDateTime(course.startsAt, "ar"), course.locationAr),
+      bodyEn: dict.en.notify.dateBody(formatDateTime(course.startsAt, "en"), course.locationEn || course.locationAr),
+      url: `/courses/${courseId}#calendar`,
+    },
+  );
+  return regs.length;
 }
 
 export async function deleteCourse(formData: FormData) {

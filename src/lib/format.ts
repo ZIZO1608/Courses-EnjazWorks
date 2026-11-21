@@ -6,7 +6,10 @@ export const APP_TZ_OFFSET = "+03:00";
 
 const locale = (lang: Lang) => (lang === "ar" ? "ar-SY-u-nu-latn" : "en-GB");
 
-export function formatDateTime(d: Date, lang: Lang) {
+export const DATE_TBA = { ar: "يُعلن الموعد قريباً", en: "Date coming soon" } as const;
+
+export function formatDateTime(d: Date | null, lang: Lang) {
+  if (!d) return DATE_TBA[lang];
   return new Intl.DateTimeFormat(locale(lang), {
     timeZone: APP_TZ,
     weekday: "long",
@@ -26,7 +29,8 @@ export function formatDate(d: Date, lang: Lang) {
   }).format(d);
 }
 
-export function formatShortDateTime(d: Date, lang: Lang) {
+export function formatShortDateTime(d: Date | null, lang: Lang) {
+  if (!d) return DATE_TBA[lang];
   return new Intl.DateTimeFormat(locale(lang), {
     timeZone: APP_TZ,
     day: "numeric",
@@ -51,7 +55,8 @@ export function parseLocalDateTime(value: string): Date | null {
 }
 
 /** Date → "2026-12-01T17:00" in Damascus time, for <input type=datetime-local>. */
-export function toLocalInputValue(d: Date) {
+export function toLocalInputValue(d: Date | null) {
+  if (!d) return "";
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: APP_TZ,
     year: "numeric",

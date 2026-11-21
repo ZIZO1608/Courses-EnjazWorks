@@ -65,6 +65,20 @@ p {
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
+/* iPhone draws date pickers wider than their box and centres the text. */
+input[type="datetime-local"].input,
+input[type="date"].input {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  text-align: start;
+}
+input[type="datetime-local"].input::-webkit-date-and-time-value {
+  text-align: start;
+}
+
 .input:focus {
   outline: none;
   border-color: var(--color-rose);

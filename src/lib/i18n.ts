@@ -175,6 +175,7 @@ export const dict = {
       save: "حفظ",
       saved: "تم الحفظ",
       notified: (n: number) => `تم الحفظ، ووصل إشعار الموعد الجديد إلى ${n} طالب 🔔`,
+      noDate: "الموعد لم يتحدد بعد (يظهر للطلاب: يُعلن الموعد قريباً)",
       startsHint: "عند تحديد الموعد أو تغييره، يصل إشعار تلقائياً لكل المسجّلين.",
       cancel: "إلغاء",
       fields: {
@@ -183,7 +184,7 @@ export const dict = {
         descriptionAr: "الوصف (عربي)",
         descriptionEn: "الوصف (English)",
         instructor: "المدرّب",
-        startsAt: "موعد البداية (بتوقيت دمشق) — اتركه فارغاً إذا لم يتحدد بعد",
+        startsAt: "موعد البداية (بتوقيت دمشق)",
         scheduleAr: "المواعيد (عربي) — مثال: الأحد والثلاثاء ٥–٧ مساءً",
         scheduleEn: "Schedule (English)",
         durationAr: "المدة (عربي) — مثال: ٤ أسابيع",
@@ -431,6 +432,7 @@ export const dict = {
       save: "Save",
       saved: "Saved",
       notified: (n: number) => `Saved. ${n} students got the new date notification 🔔`,
+      noDate: "No date yet (students see: Date coming soon)",
       startsHint: "When you set or change the date, everyone registered is notified automatically.",
       cancel: "Cancel",
       fields: {
@@ -439,7 +441,7 @@ export const dict = {
         descriptionAr: "Description (Arabic)",
         descriptionEn: "Description (English)",
         instructor: "Instructor",
-        startsAt: "Start (Damascus time) — leave empty if not set yet",
+        startsAt: "Start (Damascus time)",
         scheduleAr: "Schedule (Arabic)",
         scheduleEn: "Schedule (English) — e.g. Sun & Tue, 5–7 pm",
         durationAr: "Duration (Arabic)",

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { saveCourse, type CourseFormState } from "@/app/actions/admin";
 import type { Question } from "@/lib/questions";
 import { QuestionsEditor, type QuestionsEditorLabels } from "./QuestionsEditor";
@@ -33,7 +33,7 @@ export function CourseForm({
   initial: CourseInitial;
   fields: Fields;
   statusLabels: Record<"draft" | "open" | "closed", string>;
-  labels: { save: string; cancel: string; saving: string; fixErrors: string; startsHint: string };
+  labels: { save: string; cancel: string; saving: string; fixErrors: string; startsHint: string; noDate: string };
   questionLabels: QuestionsEditorLabels;
 }) {
   const [state, action] = useActionState<CourseFormState, FormData>(saveCourse, {});
@@ -75,10 +75,13 @@ export function CourseForm({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <div>
-          {text("startsAt", { type: "datetime-local", dir: "ltr" })}
-          <p className="hint">{labels.startsHint}</p>
-        </div>
+        <StartsAtField
+          label={fields.startsAt}
+          initial={initial.startsAt}
+          error={e.startsAt}
+          noDateLabel={labels.noDate}
+          hint={labels.startsHint}
+        />
         {text("instructor")}
         <div>
           <label htmlFor="status" className="field-label">{fields.status}</label>
@@ -137,5 +140,52 @@ export function CourseForm({
         <Link href="/admin/courses" className="btn btn-ghost">{labels.cancel}</Link>
       </div>
     </form>
+  );
+}
+
+/** Date + "no date yet" switch. Phones can't empty a date picker, so the switch does it. */
+function StartsAtField({
+  label,
+  initial,
+  error,
+  noDateLabel,
+  hint,
+}: {
+  label: string;
+  initial: string;
+  error?: string;
+  noDateLabel: string;
+  hint: string;
+}) {
+  const [value, setValue] = useState(initial);
+  const [noDate, setNoDate] = useState(initial === "");
+  return (
+    <div className="sm:col-span-3 rounded-2xl bg-tint/60 p-4 space-y-3">
+      <label htmlFor="startsAt" className="field-label">{label}</label>
+      <label className="flex items-center gap-3 rounded-xl border border-line bg-white px-4 py-3 cursor-pointer font-bold text-brand has-[:checked]:border-rose">
+        <input
+          type="checkbox"
+          checked={noDate}
+          onChange={(ev) => setNoDate(ev.target.checked)}
+          className="accent-brand size-5 shrink-0"
+        />
+        {noDateLabel}
+      </label>
+      {!noDate && (
+        <input
+          id="startsAt"
+          name="startsAt"
+          type="datetime-local"
+          dir="ltr"
+          className="input"
+          value={value}
+          onChange={(ev) => setValue(ev.target.value)}
+          aria-invalid={!!error}
+          required
+        />
+      )}
+      {error && <p className="error-text">{error}</p>}
+      <p className="hint">🔔 {hint}</p>
+    </div>
   );
 }

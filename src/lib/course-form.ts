@@ -32,7 +32,7 @@ export function courseFormProps(t: Dict) {
   return {
     fields: { ...t.admin.fields },
     statusLabels: { ...t.admin.courseStatus },
-    labels: { save: t.admin.save, cancel: t.admin.cancel, saving: t.form.submitting, fixErrors: t.errors.fixBelow, startsHint: t.admin.startsHint },
+    labels: { save: t.admin.save, cancel: t.admin.cancel, saving: t.form.submitting, fixErrors: t.errors.fixBelow, startsHint: t.admin.startsHint, noDate: t.admin.noDate },
     questionLabels: { ...t.admin.questions, types: { ...t.admin.questions.types } },
   };
 }

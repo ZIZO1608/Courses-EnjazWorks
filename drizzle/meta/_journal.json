@@ -29,6 +29,13 @@
       "when": 1795283613654,
       "tag": "0003_optional_course_date",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795284502550,
+      "tag": "0004_clear_workshop_placeholder_date",
+      "breakpoints": true
     }
   ]
 }
